@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { useForm } from 'react-hook-form';
+import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
 import { RFValue } from 'react-native-responsive-fontsize';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -57,7 +57,15 @@ export function RegisterLoginData() {
 
     const dataKey = '@savepass:logins';
 
+    const response = await AsyncStorage.getItem(dataKey)
+
+    const newData = JSON.parse(response!) || []
+
+    newData.push(newLoginData)
+
     // Save data on AsyncStorage and navigate to 'Home' screen
+    await AsyncStorage.setItem(dataKey, JSON.stringify(newData))
+    navigate('Home')
   }
 
   return (
@@ -75,7 +83,7 @@ export function RegisterLoginData() {
             name="service_name"
             error={
               // Replace here with real content
-              'Has error ? show error message'
+              errors.service_name && errors.service_name.message
             }
             control={control}
             autoCapitalize="sentences"
@@ -87,7 +95,7 @@ export function RegisterLoginData() {
             name="email"
             error={
               // Replace here with real content
-              'Has error ? show error message'
+              errors.email && errors.email.message
             }
             control={control}
             autoCorrect={false}
@@ -100,7 +108,7 @@ export function RegisterLoginData() {
             name="password"
             error={
               // Replace here with real content
-              'Has error ? show error message'
+              errors.password && errors.password.message
             }
             control={control}
             secureTextEntry
@@ -111,7 +119,7 @@ export function RegisterLoginData() {
               marginTop: RFValue(8)
             }}
             title="Salvar"
-            onPress={handleSubmit(handleRegister)}
+            onPress={handleSubmit(handleRegister as SubmitHandler<FieldValues>)}
           />
         </Form>
       </Container>
